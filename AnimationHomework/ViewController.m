@@ -9,7 +9,7 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-
+@property (nonatomic) BOOL isAnimated;
 @end
 
 @implementation ViewController
@@ -43,11 +43,13 @@
             layer.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1].CGColor;
         }
         
-        // mult on 18 becouse of 15 + 3, where 15 - is width of layer and 3 - is space between layers
+        // multiplication on 18 becouse 15 + 3, where 15 - is width of layer and 3 - is space between layers
         if (i < 39) {
+            layer.anchorPoint = CGPointMake(0.5, 1);
             layer.frame = CGRectMake(3 + i * 18, 99, 15, 87);
         }
         else {
+            layer.anchorPoint = CGPointMake(0.5, 0);
             layer.frame = CGRectMake(3 + (i - 39) * 18, 189.5, 15, 87);
         }
         
@@ -55,7 +57,7 @@
     }
 }
 
-- (void)resizeLayerFromTouch:(UITouch *)touch {
+- (void)resizeLayerOnTouch:(UITouch *)touch {
     CALayer *layer;
     CGPoint position = [touch locationInView:touch.view];
     
@@ -77,34 +79,60 @@
     else {
         layer.frame = CGRectMake(layer.frame.origin.x, layer.frame.origin.y, layer.frame.size.width, position.y - 186.5);
     }
-
     
+    
+}
+
+- (void)doubleTapAction {
+    if (self.isAnimated) {
+        self.view.backgroundColor = [UIColor colorWithRed:25/255. green:54/255. blue:66/255. alpha:1];
+
+        for (CALayer *sublayer in self.view.layer.sublayers) {
+            [sublayer removeAnimationForKey: @"danceAnimation"];
+            sublayer.frame = CGRectMake(sublayer.frame.origin.x, sublayer.frame.origin.y, 15, 87);
+        }
+        
+        self.isAnimated = NO;
+        NSLog(@"Animation stoped");
+    }
+    else {
+        self.view.backgroundColor = [UIColor colorWithRed:32/255. green:87/255. blue:110/255. alpha:1];
+        int i = 0;
+        
+        for (CALayer *sublayer in self.view.layer.sublayers) {
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"bounds.size.height"];
+            animation.fromValue = @0.0;
+            animation.toValue = @87;
+            animation.duration = .7;
+            animation.repeatCount = INFINITY;
+            animation.beginTime = CACurrentMediaTime() + i/16.5;
+            animation.autoreverses = YES;
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            
+            [sublayer addAnimation:animation forKey:@"danceAnimation"];
+            
+            i++;
+        }
+        
+        self.isAnimated = YES;
+        NSLog(@"Animation started");
+    }
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
-    [self resizeLayerFromTouch:touch];
+    [self resizeLayerOnTouch:touch];
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
-    [self resizeLayerFromTouch:touch];
-}
-
-- (void)doubleTapAction {
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.keyPath = @"bounds.size.height";
-    animation.values = @[ @0, @50, @20 ];
-    animation.duration = 1.2;
-    
-    for( CALayer *sublayer in self.view.layer.sublayers) {
-        [sublayer addAnimation:animation forKey:@"shake"];
-    }
+    [self resizeLayerOnTouch:touch];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor blackColor];
+    self.isAnimated = NO;
+    self.view.backgroundColor = [UIColor colorWithRed:25/255. green:54/255. blue:66/255. alpha:1];
     [self addSublayersToMainLayer];
     
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapAction)];
