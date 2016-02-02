@@ -43,6 +43,12 @@
             layer.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1].CGColor;
         }
         
+        // disabling implicit bounds animation
+        NSMutableDictionary *newActions = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                           [NSNull null], @"bounds",
+                                           nil];
+        layer.actions = newActions;
+        
         // multiplication on 18 becouse 15 + 3, where 15 - is width of layer and 3 - is space between layers
         if (i < 39) {
             layer.anchorPoint = CGPointMake(0.5, 1);
