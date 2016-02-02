@@ -87,9 +87,14 @@
     if (self.isAnimated) {
         self.view.backgroundColor = [UIColor colorWithRed:25/255. green:54/255. blue:66/255. alpha:1];
 
-        for (CALayer *sublayer in self.view.layer.sublayers) {
-            [sublayer removeAnimationForKey: @"danceAnimation"];
-            sublayer.frame = CGRectMake(sublayer.frame.origin.x, sublayer.frame.origin.y, 15, 87);
+        for (int i = 0; i < self.view.layer.sublayers.count; i++) {
+            [self.view.layer.sublayers[i] removeAnimationForKey: @"danceAnimation"];
+            if (i <= self.view.layer.sublayers.count / 2) {
+                self.view.layer.sublayers[i].frame = CGRectMake(self.view.layer.sublayers[i].frame.origin.x, 99, 15, 87);
+            }
+            else {
+                self.view.layer.sublayers[i].frame = CGRectMake(self.view.layer.sublayers[i].frame.origin.x, 189.5, 15, 87);
+            }
         }
         
         self.isAnimated = NO;
@@ -120,8 +125,10 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    [self resizeLayerOnTouch:touch];
+    if (!self.isAnimated) {
+        UITouch *touch = [touches anyObject];
+        [self resizeLayerOnTouch:touch];
+    }
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -134,7 +141,7 @@
     self.isAnimated = NO;
     self.view.backgroundColor = [UIColor colorWithRed:25/255. green:54/255. blue:66/255. alpha:1];
     [self addSublayersToMainLayer];
-    
+   
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapAction)];
     doubleTap.numberOfTapsRequired = 2;
     [self.view addGestureRecognizer:doubleTap];
